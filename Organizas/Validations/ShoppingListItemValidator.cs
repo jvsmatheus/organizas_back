@@ -21,4 +21,24 @@ namespace Organizas.Validations
                 .WithMessage("A unidade informada é inválida.");
         }
     }
+
+    public class UpdateShoppingListItemValidator : AbstractValidator<UpdateShoppingListItemDto>
+    {
+        public UpdateShoppingListItemValidator()
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty()
+                .WithMessage("Nome é obrigatório");
+
+            RuleFor(x => x.Quantity)
+                .GreaterThan(0m)
+                .WithMessage("Quantidade deve que ser maior que zero")
+                .PrecisionScale(12, 3, true);
+
+            RuleFor(x => x.Unit)
+                .IsInEnum()
+                .When(x => x.Unit.HasValue)
+                .WithMessage("A unidade informada é inválida.");
+        }
+    }
 }

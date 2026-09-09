@@ -11,8 +11,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
-// Application dependency injection
+// Validation
 builder.Services.AddScoped<IValidator<CreateShoppingListItemDto>, CreateShoppingListItemValidator>();
+builder.Services.AddScoped<IValidator<UpdateShoppingListItemDto>, UpdateShoppingListItemValidator>();
+
+// Application dependency injection
 builder.Services.AddScoped<ShoppingListItemService>();
 
 // Exception handler

@@ -1,6 +1,6 @@
-﻿namespace Organizas.Entities.ApiResponse
+﻿namespace Organizas.Dtos
 {
-    public sealed class ApiResponse<T> where T : class
+    public sealed class ApiResponseDto<T> where T : class
     {
         public bool Success { get; }
         public T? Data { get; }
@@ -8,7 +8,7 @@
         public IReadOnlyDictionary<string, string[]>? Errors { get; }
         public string? TraceId { get; }
 
-        private ApiResponse(
+        private ApiResponseDto(
             bool success,
             string message,
             string? traceId,
@@ -23,9 +23,9 @@
             TraceId = traceId;
         }
 
-        public static ApiResponse<T> Ok(T? data, string message) => new(true, message, null, data, null);
+        public static ApiResponseDto<T> Ok(T? data, string message) => new(true, message, null, data, null);
 
-        public static ApiResponse<T> Fail(string message, string traceId, IReadOnlyDictionary<string, string[]>? errors = null)
+        public static ApiResponseDto<T> Fail(string message, string traceId, IReadOnlyDictionary<string, string[]>? errors = null)
             => new(false, message, traceId, null, errors);
     }
 }

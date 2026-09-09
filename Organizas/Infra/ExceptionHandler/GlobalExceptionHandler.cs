@@ -1,8 +1,10 @@
-﻿using System.Diagnostics;
-using System.Text.Json;
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
-using Organizas.Entities.ApiResponse;
+using Organizas.Dtos;
+using Organizas.Exceptions;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Text.Json;
 
 namespace Organizas.Infra.Errors
 {
@@ -23,30 +25,37 @@ namespace Organizas.Infra.Errors
         {
             var traceId = Activity.Current?.Id ?? httpContext.TraceIdentifier;
             int statusCode;
-            ApiResponse<object> response;
+            ApiResponseDto<object> response;
+
+            LogException(httpContext, exception, traceId);
 
             switch (exception)
             {
-                case ValidationException validationException: statusCode = StatusCodes.Status400BadRequest;
+                case ValidationException validationException:
+                    statusCode = StatusCodes.Status400BadRequest;
 
-                    response = ApiResponse<object>.Fail(
+                    response = ApiResponseDto<object>.Fail(
                         "Corrija os campos informados e tente novamente",
                         traceId,
-                        GetValidationErrors(validationException));
+                        GetValidationErrors(validationException)
+                    );
+
+                    break;
+
+                case ItemNotFoundException itemNotFoundException:
+                    statusCode = StatusCodes.Status404NotFound;
+
+                    response = ApiResponseDto<object>.Fail(
+                        itemNotFoundException.Message,
+                        traceId
+                    );
 
                     break;
 
                 default:
                     statusCode = StatusCodes.Status500InternalServerError;
 
-                    _logger.LogError(
-                        exception,
-                        "Falha inesperada ao processar {Method} {Path}. TraceId: {TraceId}",
-                        httpContext.Request.Method,
-                        httpContext.Request.Path,
-                        traceId);
-
-                    response = ApiResponse<object>.Fail(
+                    response = ApiResponseDto<object>.Fail(
                         "Não foi possível concluir a operação",
                         traceId
                     );
@@ -77,5 +86,31 @@ namespace Organizas.Infra.Errors
                         .Distinct()
                         .ToArray());
         }
+
+        private void LogException(HttpContext httpContext, Exception exception, string traceId)
+        {
+            switch (exception)
+            {
+                case ValidationException:
+                case ItemNotFoundException:
+                    _logger.LogWarning(
+                        "Requisição rejeitada por {ExceptionType} em {Method} {Path}. TraceId: {TraceId}",
+                        exception.GetType().Name,
+                        httpContext.Request.Method,
+                        httpContext.Request.Path,
+                        traceId);
+                    break;
+
+                default:
+                    _logger.LogError(
+                        exception,
+                        "Falha inesperada ao processar {Method} {Path}. TraceId: {TraceId}",
+                        httpContext.Request.Method,
+                        httpContext.Request.Path,
+                        traceId);
+                    break;
+            }
+        }
+
     }
 }

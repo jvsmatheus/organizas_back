@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Organizas.Dtos.Request;
 using Organizas.Entities;
+using Organizas.Exceptions;
 using Organizas.Infra.Db;
 
 namespace Organizas.Services
@@ -9,14 +10,17 @@ namespace Organizas.Services
     public sealed class ShoppingListItemService
     {
         private readonly OrganizasDbContext _context;
-        private readonly IValidator<CreateShoppingListItemDto> _validator;
+        private readonly IValidator<CreateShoppingListItemDto> _createValidator;
+        private readonly IValidator<UpdateShoppingListItemDto> _updateValidator;
 
         public ShoppingListItemService(
-            IValidator<CreateShoppingListItemDto> validator,
-            OrganizasDbContext context
+            OrganizasDbContext context,
+            IValidator<CreateShoppingListItemDto> createValidator,
+            IValidator<UpdateShoppingListItemDto> updateValidator
         ) {
-            _validator = validator;
             _context = context;
+            _createValidator = createValidator;
+            _updateValidator = updateValidator;
         }
 
         public async Task<List<ShoppingListItem>> GetAll(CancellationToken cancellationToken)
@@ -24,9 +28,9 @@ namespace Organizas.Services
             return await _context.ShoppingListItems.AsNoTracking().OrderBy(x => x.Id).ToListAsync(cancellationToken);
         }
 
-        public async Task Create(CreateShoppingListItemDto request, CancellationToken cancellationToken)
+        public async Task<ShoppingListItem> Create(CreateShoppingListItemDto request, CancellationToken cancellationToken)
         {
-            await _validator.ValidateAndThrowAsync(
+            await _createValidator.ValidateAndThrowAsync(
                 request,
                 cancellationToken
             );
@@ -40,6 +44,36 @@ namespace Organizas.Services
             };
 
             _context.ShoppingListItems.Add(item);
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return item;
+        }
+
+        public async Task<ShoppingListItem> Update(int id, UpdateShoppingListItemDto request, CancellationToken cancellationToken)
+        {
+            await _updateValidator.ValidateAndThrowAsync(
+                request,
+                cancellationToken
+            );
+
+            var item = await _context.ShoppingListItems.SingleOrDefaultAsync(item => item.Id == id, cancellationToken) ?? throw new ItemNotFoundException();
+
+            item.Name = request.Name.Trim();
+            item.Quantity = request.Quantity;
+            item.Unit = request.Unit;
+            item.IsChecked = request.IsChecked;
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return item;
+        }
+
+        public async Task Delete(int id, CancellationToken cancellationToken)
+        {
+            var item = await _context.ShoppingListItems.SingleOrDefaultAsync(item => item.Id == id, cancellationToken) ?? throw new ItemNotFoundException();
+
+            _context.ShoppingListItems.Remove(item);
 
             await _context.SaveChangesAsync(cancellationToken);
         }
