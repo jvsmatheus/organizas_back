@@ -1,8 +1,8 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Organizas.Dtos.Request;
 using Organizas.Entities;
-using Organizas.Entities.Dtos.Request;
 using Organizas.Infra.Db;
 
 namespace Organizas.Controllers
@@ -22,17 +22,6 @@ namespace Organizas.Controllers
             _context = context;
         }
 
-        [HttpGet("diagnostico/banco")]
-        public async Task<IActionResult> CheckDatabaseConnection()
-        {
-            var canConnect = await _context.Database.CanConnectAsync();
-
-            if (!canConnect)
-                return StatusCode(503, "Não foi possível conectar ao banco.");
-
-            return Ok("Conexão com o banco estabelecida.");
-        }
-
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -44,10 +33,10 @@ namespace Organizas.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateShoppingListItemDto request)
         {
-            var validationResult = await _validator.ValidateAsync(request);
-
-            if (!validationResult.IsValid)
-                return BadRequest(validationResult.Errors);
+            await _validator.ValidateAndThrowAsync(
+                request,
+                HttpContext.RequestAborted
+            );
 
             var item = new ShoppingListItem() { 
                 Name = request.Name.Trim(),

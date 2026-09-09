@@ -1,7 +1,8 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Organizas.Entities.Dtos.Request;
+using Organizas.Dtos.Request;
 using Organizas.Infra.Db;
+using Organizas.Infra.Errors;
 using Organizas.Validations;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,10 @@ builder.Services.AddControllers();
 
 // Application dependency injection
 builder.Services.AddScoped<IValidator<CreateShoppingListItemDto>, CreateShoppingListItemValidator>();
+
+// Exception handler
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 // DbContext
 builder.Services.AddDbContext<OrganizasDbContext>(
@@ -27,6 +32,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 

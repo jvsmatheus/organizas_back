@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Organizas.Entities.Dtos.Request;
+using Organizas.Dtos.Request;
 
 namespace Organizas.Validations
 {
