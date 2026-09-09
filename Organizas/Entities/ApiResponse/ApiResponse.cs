@@ -23,7 +23,7 @@
             TraceId = traceId;
         }
 
-        public static ApiResponse<T> Ok(T data, string message) => new(true, message, null, data, null);
+        public static ApiResponse<T> Ok(T? data, string message) => new(true, message, null, data, null);
 
         public static ApiResponse<T> Fail(string message, string traceId, IReadOnlyDictionary<string, string[]>? errors = null)
             => new(false, message, traceId, null, errors);

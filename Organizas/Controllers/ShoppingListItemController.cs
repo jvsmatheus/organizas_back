@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Organizas.Dtos.Request;
 using Organizas.Entities;
+using Organizas.Entities.ApiResponse;
 using Organizas.Infra.Db;
+using Organizas.Services;
 
 namespace Organizas.Controllers
 {
@@ -11,46 +13,28 @@ namespace Organizas.Controllers
     [Route("[controller]")]
     public class ShoppingListItemController : ControllerBase
     {
-        private readonly IValidator<CreateShoppingListItemDto> _validator;
-        private readonly OrganizasDbContext _context;
+        private readonly ShoppingListItemService _shoppingListItemService;
 
         public ShoppingListItemController(
-            IValidator<CreateShoppingListItemDto> validator,
-            OrganizasDbContext context
-        ) { 
-            _validator = validator;
-            _context = context;
+            ShoppingListItemService shoppingListItemService
+        ) {
+            _shoppingListItemService = shoppingListItemService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
-            var items = await _context.ShoppingListItems.AsNoTracking().OrderBy(x => x.Id).ToListAsync();
+            var items = await _shoppingListItemService.GetAll(cancellationToken);
 
-            return StatusCode(StatusCodes.Status200OK, items);
+            return Ok(ApiResponse<List<ShoppingListItem>>.Ok(items, "Listagem de item feita com sucesso"));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateShoppingListItemDto request)
+        public async Task<IActionResult> Create([FromBody] CreateShoppingListItemDto request, CancellationToken cancellationToken)
         {
-            await _validator.ValidateAndThrowAsync(
-                request,
-                HttpContext.RequestAborted
-            );
+            await _shoppingListItemService.Create(request, cancellationToken);
 
-            var item = new ShoppingListItem() { 
-                Name = request.Name.Trim(),
-                Quantity = request.Quantity,
-                Unit = request.Unit,
-                IsChecked = false
-            };
-
-            _context.ShoppingListItems.Add(item);
-
-            await _context.SaveChangesAsync();
-
-            return StatusCode(StatusCodes.Status201Created, item);
-
+            return Ok(ApiResponse<object>.Ok(null, "Item criado com sucesso"));
         }
     }
 }

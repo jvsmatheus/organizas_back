@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Organizas.Dtos.Request;
 using Organizas.Infra.Db;
 using Organizas.Infra.Errors;
+using Organizas.Services;
 using Organizas.Validations;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,7 @@ builder.Services.AddControllers();
 
 // Application dependency injection
 builder.Services.AddScoped<IValidator<CreateShoppingListItemDto>, CreateShoppingListItemValidator>();
+builder.Services.AddScoped<ShoppingListItemService>();
 
 // Exception handler
 builder.Services.AddProblemDetails();
