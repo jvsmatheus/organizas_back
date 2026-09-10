@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Organizas.Dtos.Request;
+using Organizas.Dtos.Request.ShoppingList;
+using Organizas.Dtos.Request.ShoppingListItem;
 using Organizas.Infra.Db;
 using Organizas.Infra.Errors;
 using Organizas.Services;
@@ -11,12 +12,21 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
-// Validation
+#region Validation
+// ShoppingListItem
 builder.Services.AddScoped<IValidator<CreateShoppingListItemDto>, CreateShoppingListItemValidator>();
 builder.Services.AddScoped<IValidator<UpdateShoppingListItemDto>, UpdateShoppingListItemValidator>();
 
+// ShoppingList
+builder.Services.AddScoped<IValidator<CreateShoppingListDto>, CreateShoppingListValidator>();
+builder.Services.AddScoped<IValidator<UpdateShoppingListDto>, UpdateShoppingListValidator>();
+#endregion
+
+#region Depency Injection
 // Application dependency injection
 builder.Services.AddScoped<ShoppingListItemService>();
+builder.Services.AddScoped<ShoppingListService>();
+#endregion
 
 // Exception handler
 builder.Services.AddProblemDetails();

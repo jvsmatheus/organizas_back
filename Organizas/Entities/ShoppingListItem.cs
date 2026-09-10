@@ -9,5 +9,6 @@ namespace Organizas.Entities
         public decimal Quantity { get; set; }
         public ShoppingListItemUnitEnum? Unit { get; set; }
         public bool IsChecked { get; set; }
+        public int ShoppingListId { get; set; }
     }
 }

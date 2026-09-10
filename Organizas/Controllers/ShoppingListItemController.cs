@@ -2,7 +2,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Organizas.Dtos;
-using Organizas.Dtos.Request;
+using Organizas.Dtos.Request.ShoppingListItem;
 using Organizas.Entities;
 using Organizas.Infra.Db;
 using Organizas.Services;
@@ -11,7 +11,7 @@ namespace Organizas.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ShoppingListItemController : ControllerBase
+    public sealed class ShoppingListItemController : ControllerBase
     {
         private readonly ShoppingListItemService _shoppingListItemService;
 
@@ -26,7 +26,15 @@ namespace Organizas.Controllers
         {
             var items = await _shoppingListItemService.GetAll(cancellationToken);
 
-            return Ok(ApiResponseDto<List<ShoppingListItem>>.Ok(items, "Listagem de item feita com sucesso"));
+            return Ok(ApiResponseDto<List<ShoppingListItem>>.Ok(items, "Listagem de itens feita com sucesso"));
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> Get(int id, CancellationToken cancellationToken)
+        {
+            var item = await _shoppingListItemService.Get(id, cancellationToken);
+
+            return Ok(ApiResponseDto<ShoppingListItem>.Ok(item, "Item encontrado com sucesso"));
         }
 
         [HttpPost]
@@ -34,7 +42,7 @@ namespace Organizas.Controllers
         {
             var item = await _shoppingListItemService.Create(request, cancellationToken);
 
-            return Ok(ApiResponseDto<object>.Ok(item, "Item criado com sucesso"));
+            return StatusCode(201, ApiResponseDto<ShoppingListItem>.Ok(item, "Item criado com sucesso"));
         }
 
         [HttpPut("{id:int}")]
@@ -42,7 +50,7 @@ namespace Organizas.Controllers
         {
             var item = await _shoppingListItemService.Update(id, request, cancellationToken);
 
-            return Ok(ApiResponseDto<object>.Ok(item, "Item atualizado com sucesso"));
+            return Ok(ApiResponseDto<ShoppingListItem>.Ok(item, "Item atualizado com sucesso"));
 
         }
 
@@ -51,7 +59,7 @@ namespace Organizas.Controllers
         {
             await _shoppingListItemService.Delete(id, cancellationToken);
 
-            return Ok(ApiResponseDto<object>.Ok(null, "Item removido com sucesso"));
+            return StatusCode(204, ApiResponseDto<ShoppingListItem>.Ok(null, "Item removido com sucesso"));
 
         }
     }

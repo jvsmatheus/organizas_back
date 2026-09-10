@@ -14,8 +14,17 @@ namespace Organizas.Infra.Db
             modelBuilder.Entity<ShoppingListItem>()
                 .Property(item => item.Quantity)
                 .HasPrecision(12, 3);
+
+            modelBuilder.Entity<ShoppingList>()
+                .ToTable("ShoppingLists")
+                .HasMany(list => list.Items)
+                .WithOne()
+                .HasForeignKey(item => item.ShoppingListId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
         public DbSet<ShoppingListItem> ShoppingListItems => Set<ShoppingListItem>();
+        public DbSet<ShoppingList> ShoppingLists => Set<ShoppingList>();
     }
 }

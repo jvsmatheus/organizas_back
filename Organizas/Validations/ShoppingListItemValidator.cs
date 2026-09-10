@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Organizas.Dtos.Request;
+using Organizas.Dtos.Request.ShoppingListItem;
 
 namespace Organizas.Validations
 {
@@ -8,17 +8,17 @@ namespace Organizas.Validations
         public CreateShoppingListItemValidator() {
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .WithMessage("Nome é obrigatório");
+                .WithMessage("Nome do item é obrigatório");
 
             RuleFor(x => x.Quantity)
                 .GreaterThan(0m)
-                .WithMessage("Quantidade deve que ser maior que zero")
+                .WithMessage("Quantidade do item deve que ser maior que zero")
                 .PrecisionScale(12, 3, true);
 
             RuleFor(x => x.Unit)
                 .IsInEnum()
                 .When(x => x.Unit.HasValue)
-                .WithMessage("A unidade informada é inválida.");
+                .WithMessage("A unidade do item informada é inválida.");
         }
     }
 
@@ -28,17 +28,17 @@ namespace Organizas.Validations
         {
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .WithMessage("Nome é obrigatório");
+                .WithMessage("Nome do item é obrigatório");
 
             RuleFor(x => x.Quantity)
                 .GreaterThan(0m)
-                .WithMessage("Quantidade deve que ser maior que zero")
+                .WithMessage("Quantidade do item deve que ser maior que zero")
                 .PrecisionScale(12, 3, true);
 
             RuleFor(x => x.Unit)
                 .IsInEnum()
                 .When(x => x.Unit.HasValue)
-                .WithMessage("A unidade informada é inválida.");
+                .WithMessage("A unidade do item informada é inválida.");
         }
     }
 }
