@@ -51,6 +51,9 @@ jobs:
     steps:
       - name: Testar acesso à EC2 pelo SSM
         shell: bash
+        env:
+          AWS_REGION: us-east-1
+          AWS_DEFAULT_REGION: us-east-1
         run: |
           command_id=$(aws ssm send-command \
             --instance-ids i-0de61b7142ce73212 \
