@@ -49,6 +49,12 @@ jobs:
       contents: read
 
     steps:
+      - name: Autenticar na AWS
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: arn:aws:iam::191518191172:role/OrganizasGitHubRole
+          aws-region: us-east-1
+
       - name: Testar acesso à EC2 pelo SSM
         shell: bash
         env:
@@ -73,12 +79,6 @@ jobs:
             --instance-id i-0de61b7142ce73212 \
             --query '{Status:Status,Saida:StandardOutputContent,Erro:StandardErrorContent}' \
             --output json
-
-      - name: Autenticar na AWS
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          role-to-assume: arn:aws:iam::191518191172:role/OrganizasGitHubRole
-          aws-region: us-east-1
 
       - name: Baixar artefato da aplicação
         uses: actions/download-artifact@v5
