@@ -49,6 +49,11 @@ jobs:
       contents: read
 
     steps:
+      - name: Inspecionar claims OIDC
+        uses: github/actions-oidc-debugger@main
+        with:
+          audience: sts.amazonaws.com
+
       - name: Autenticar na AWS
         uses: aws-actions/configure-aws-credentials@v5
         with:
