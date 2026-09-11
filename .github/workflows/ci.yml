@@ -44,7 +44,17 @@ jobs:
     needs: build-and-test
     runs-on: ubuntu-latest
 
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
+      - name: Autenticar na AWS
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: arn:aws:iam::191518191172:role/OrganizasGitHubRole
+          aws-region: us-east-1
+
       - name: Baixar artefato da aplicação
         uses: actions/download-artifact@v5
         with:
