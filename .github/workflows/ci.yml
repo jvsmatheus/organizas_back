@@ -33,6 +33,18 @@ jobs:
       - name: Publicar para Linux
         run: dotnet publish Organizas/Organizas.csproj --configuration Release --runtime linux-x64 --self-contained false --output ./publish
 
+      - name: Restaurar ferramentas do repositório
+        run: dotnet tool restore
+
+      - name: Gerar bundle de migrations
+        run: |
+          dotnet ef migrations bundle \
+            --project Organizas/Organizas.csproj \
+            --configuration Release \
+            --self-contained \
+            --target-runtime linux-x64 \
+            --output ./publish/efbundle
+
       - name: Salvar artefato de publicação
         uses: actions/upload-artifact@v4
         with:
