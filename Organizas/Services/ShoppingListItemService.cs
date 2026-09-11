@@ -40,6 +40,11 @@ namespace Organizas.Services
                 cancellationToken
             );
 
+            var listExists = await _context.ShoppingLists.AnyAsync(x => x.Id == request.ShoppingListId, cancellationToken);
+
+            if (!listExists)
+                 throw new ItemNotFoundException("Lista de compras não encontrada");
+
             var item = new ShoppingListItem()
             {
                 Name = request.Name.Trim(),

@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="Organizas/Organizas.csproj" />
+  <Project Path="Organizas_Tests/Organizas_Tests.csproj" Id="fc7fd5aa-96a4-44c0-b172-a3db9adc18aa" />
 </Solution>

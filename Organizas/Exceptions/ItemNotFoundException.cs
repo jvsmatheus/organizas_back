@@ -4,6 +4,8 @@
     {
         public int ItemId { get; }
 
-        public ItemNotFoundException() : base("Item não encontrado") { }
+        public ItemNotFoundException() : base() { }
+
+        public ItemNotFoundException(string message) : base(message) { }
     }
 }

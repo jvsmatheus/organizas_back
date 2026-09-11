@@ -33,6 +33,18 @@ namespace Organizas.Services
             return await _context.ShoppingLists.AsNoTracking().SingleOrDefaultAsync(item => item.Id == id, cancellationToken) ?? throw new ItemNotFoundException();
         }
 
+        public async Task<List<ShoppingListItem>> GetAllItemsByShoppingListId(int shoppingListId, CancellationToken cancellationToken)
+        {
+            var listExists = await _context.ShoppingLists.AnyAsync(item => item.Id == shoppingListId, cancellationToken);
+
+            if (!listExists)
+                throw new ItemNotFoundException("Lista de compras não encontrada");
+
+            var items = _context.ShoppingListItems.AsNoTracking().Where(item => item.ShoppingListId == shoppingListId).OrderBy(x => x.Id);
+
+            return await items.ToListAsync(cancellationToken);
+        }
+
         public async Task<ShoppingList> Create(CreateShoppingListDto request, CancellationToken cancellationToken)
         {
             await _createValidator.ValidateAndThrowAsync(request, cancellationToken);

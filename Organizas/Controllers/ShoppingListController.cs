@@ -36,6 +36,14 @@ namespace Organizas.Controllers
             return Ok(ApiResponseDto<ShoppingList>.Ok(item, "Lista de compras encontrada com sucesso"));
         }
 
+        [HttpGet("{shoppingListId:int}/items")]
+        public async Task<IActionResult> GetAllItemsByShoppingListId(int shoppingListId, CancellationToken cancellationToken)
+        {
+            var items = await _shoppingListService.GetAllItemsByShoppingListId(shoppingListId, cancellationToken);
+
+            return Ok(ApiResponseDto<List<ShoppingListItem>>.Ok(items, "Itens da lista de compras encontrados com sucesso"));
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateShoppingListDto request, CancellationToken cancellationToken)
         {
