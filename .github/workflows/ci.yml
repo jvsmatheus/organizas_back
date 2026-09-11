@@ -39,3 +39,18 @@ jobs:
           name: organizas-api
           path: ./publish
           retention-days: 5
+
+  prepare-deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar artefato da aplicação
+        uses: actions/download-artifact@v5
+        with:
+          name: organizas-api
+          path: ./deploy
+
+      - name: Verificar arquivos do deploy
+        run: ls -la ./deploy
+          
