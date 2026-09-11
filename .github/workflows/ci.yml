@@ -131,7 +131,7 @@ jobs:
             commands: [
               "set -eu",
               "bootstrap_dir=$(mktemp -d /tmp/organizas-bootstrap.XXXXXX)",
-              ("aws s3 cp \"" + $uri + "\" \"$bootstrap_dir/package.tar.gz\" --region us-east-1"),
+              ("aws s3 cp \"" + $uri + "\" \"$bootstrap_dir/package.tar.gz\" --region us-east-1 --no-progress"),
               "tar --extract --gzip --file \"$bootstrap_dir/package.tar.gz\" --directory \"$bootstrap_dir\" --no-same-owner ./apply-migrations.sh",
               ("bash \"$bootstrap_dir/apply-migrations.sh\" \"" + $uri + "\"")
             ],

@@ -6,7 +6,7 @@ package_uri="${1:?Informe a URI S3 do pacote}"
 migration_dir=$(mktemp -d /tmp/organizas-migrations.XXXXXX)
 
 aws s3 cp "$package_uri" "$migration_dir/package.tar.gz" \
-  --region us-east-1
+  --region us-east-1 --no-progress
 
 mkdir "$migration_dir/app"
 
