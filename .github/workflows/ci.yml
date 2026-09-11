@@ -41,6 +41,7 @@ jobs:
           retention-days: 5
 
   prepare-deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: build-and-test
     runs-on: ubuntu-latest
 
@@ -88,4 +89,17 @@ jobs:
 
       - name: Verificar arquivos do deploy
         run: ls -la ./deploy
+
+      - name: Compactar pacote da aplicação
+        shell: bash
+        run: |
+          tar --create --gzip \
+            --file organizas-api.tar.gz \
+            --directory ./deploy .
+
+      - name: Enviar pacote ao S3
+        shell: bash
+        run: |
+          aws s3 cp organizas-api.tar.gz \
+            "s3://organizas-deploy/releases/${GITHUB_SHA}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}/organizas-api.tar.gz"
           
