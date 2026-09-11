@@ -29,3 +29,6 @@ jobs:
 
       - name: Executar testes
         run: dotnet test Organizas.slnx --configuration Release --no-build
+
+      - name: Publicar para Linux
+        run: dotnet publish Organizas/Organizas.csproj --configuration Release --runtime linux-x64 --self-contained false --no-build --output ./publish
