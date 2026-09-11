@@ -45,6 +45,9 @@ jobs:
             --target-runtime linux-x64 \
             --output ./publish/efbundle
 
+      - name: Incluir script de migrations na publicação
+        run: cp .github/scripts/apply-migrations.sh ./publish/apply-migrations.sh
+
       - name: Salvar artefato de publicação
         uses: actions/upload-artifact@v4
         with:
@@ -56,6 +59,10 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: build-and-test
     runs-on: ubuntu-latest
+
+    concurrency:
+      group: organizas-production
+      cancel-in-progress: false
 
     permissions:
       id-token: write
