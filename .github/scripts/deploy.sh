@@ -56,12 +56,66 @@ activate_release() {
   mv -Tf "$temporary_link" /var/www/organizas || return 1
 }
 
+cleanup_releases() {
+  local releases_root="/var/www/organizas-releases"
+  local active_release candidates timestamp name candidate resolved
+  local kept_extra=0
+
+  active_release=$(readlink -f /var/www/organizas) || return 1
+  if [[ "$active_release" != "$release_dir" ]]; then
+    echo "Limpeza cancelada: a versão ativa mudou."
+    return 1
+  fi
+
+  # Ordena as pastas pela data de modificação, da mais recente à mais antiga.
+  candidates=$(find "$releases_root" -mindepth 1 -maxdepth 1 -type d \
+    -printf '%T@ %f\n' | sort -nr) || return 1
+
+  while read -r timestamp name; do
+    # Só considera os nomes de publicações reconhecidos por esta esteira.
+    if [[ "$name" != "manual-inicial" &&
+          ! "$name" =~ ^[a-f0-9]{40}-[0-9]+-[0-9]+$ ]]; then
+      continue
+    fi
+
+    candidate="$releases_root/$name"
+    resolved=$(readlink -f "$candidate") || return 1
+
+    # Nunca segue links nem remove um caminho fora da pasta de versões.
+    if [[ -L "$candidate" || "$resolved" != "$candidate" ]]; then
+      echo "Limpeza ignorada para caminho inesperado: $candidate"
+      continue
+    fi
+
+    if [[ "$candidate" == "$active_release" ||
+          "$candidate" == "$previous_release" ]]; then
+      continue
+    fi
+
+    if [[ "$kept_extra" -eq 0 && -f "$candidate/Organizas.dll" ]]; then
+      kept_extra=1
+      echo "Versão adicional preservada: $name"
+      continue
+    fi
+
+    rm -r -- "$candidate" || return 1
+    echo "Versão antiga removida: $name"
+  done <<< "$candidates"
+
+  return 0
+}
+
 systemctl stop organizas
 
 if activate_release "$release_dir" &&
    systemctl start organizas &&
    check_api; then
   echo "Deploy concluído: $release_id"
+
+  # Falha de limpeza não desfaz uma implantação saudável.
+  if ! cleanup_releases; then
+    echo "AVISO: deploy concluído, mas a limpeza de versões precisa ser verificada."
+  fi
 else
   echo "Falha no deploy. Restaurando a publicação anterior."
 
