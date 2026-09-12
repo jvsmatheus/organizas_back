@@ -3,7 +3,8 @@ set -euo pipefail
 
 package_uri="${1:?Informe a URI S3 do pacote}"
 
-migration_dir=$(mktemp -d /tmp/organizas-migrations.XXXXXX)
+migration_dir=$(mktemp -d /var/tmp/organizas-migrations.XXXXXX)
+trap 'rm -rf -- "$migration_dir"' EXIT
 
 aws s3 cp "$package_uri" "$migration_dir/package.tar.gz" \
   --region us-east-1 --no-progress
