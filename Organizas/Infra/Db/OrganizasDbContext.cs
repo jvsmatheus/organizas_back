@@ -15,6 +15,10 @@ namespace Organizas.Infra.Db
                 .Property(item => item.Quantity)
                 .HasPrecision(12, 3);
 
+            modelBuilder.Entity<ShoppingListItem>()
+                .Property(item => item.EstimatedUnitPrice)
+                .HasPrecision(12, 2);
+
             modelBuilder.Entity<ShoppingList>()
                 .ToTable("ShoppingLists")
                 .HasMany(list => list.Items)

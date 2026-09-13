@@ -15,6 +15,10 @@ namespace Organizas.Validations
                 .WithMessage("Quantidade do item deve que ser maior que zero")
                 .PrecisionScale(12, 3, true);
 
+            RuleFor(x => x.EstimatedUnitPrice)
+                .GreaterThan(0m)
+                .WithMessage("O preço estimado deve ser maior que zero.");
+
             RuleFor(x => x.Unit)
                 .IsInEnum()
                 .When(x => x.Unit.HasValue)
@@ -38,6 +42,10 @@ namespace Organizas.Validations
                 .GreaterThan(0m)
                 .WithMessage("Quantidade do item deve que ser maior que zero")
                 .PrecisionScale(12, 3, true);
+
+            RuleFor(x => x.EstimatedUnitPrice)
+                .GreaterThan(0m)
+                .WithMessage("O preço estimado deve ser maior que a zero.");
 
             RuleFor(x => x.Unit)
                 .IsInEnum()

@@ -7,6 +7,7 @@ namespace Organizas.Entities
         public int Id { get; set; }
         public required string Name { get; set; }
         public decimal Quantity { get; set; }
+        public decimal? EstimatedUnitPrice { get; set; }
         public ShoppingListItemUnitEnum? Unit { get; set; }
         public bool IsChecked { get; set; }
         public int ShoppingListId { get; set; }

@@ -49,6 +49,7 @@ namespace Organizas.Services
             {
                 Name = request.Name.Trim(),
                 Quantity = request.Quantity,
+                EstimatedUnitPrice = request.EstimatedUnitPrice,
                 Unit = request.Unit,
                 IsChecked = false,
                 ShoppingListId = request.ShoppingListId
@@ -68,10 +69,16 @@ namespace Organizas.Services
                 cancellationToken
             );
 
+            var listExists = await _context.ShoppingLists.AnyAsync(x => x.Id == request.ShoppingListId, cancellationToken);
+
+            if (!listExists)
+                throw new ItemNotFoundException("Lista de compras não encontrada");
+
             var item = await _context.ShoppingListItems.SingleOrDefaultAsync(item => item.Id == id, cancellationToken) ?? throw new ItemNotFoundException();
 
             item.Name = request.Name.Trim();
             item.Quantity = request.Quantity;
+            item.EstimatedUnitPrice = request.EstimatedUnitPrice;
             item.Unit = request.Unit;
             item.IsChecked = request.IsChecked;
             item.ShoppingListId = request.ShoppingListId;
