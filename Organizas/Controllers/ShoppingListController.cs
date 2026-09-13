@@ -61,6 +61,15 @@ namespace Organizas.Controllers
 
         }
 
+        [HttpPatch("{id:int}/purchase-date")]
+        public async Task<IActionResult> UpdatePurchaseDate(int id, [FromBody] UpdateShoppingListPurchaseDateDto request, CancellationToken cancellationToken)
+        {
+            var item = await _shoppingListService.UpdatePurchaseDate(id, request, cancellationToken);
+
+            return Ok(ApiResponseDto<ShoppingList>.Ok(item, "Data de compra atualizada com sucesso"));
+
+        }
+
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
