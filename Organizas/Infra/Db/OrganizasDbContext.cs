@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Organizas.Entities;
 
 namespace Organizas.Infra.Db
 {
-    public class OrganizasDbContext : DbContext
+    public class OrganizasDbContext : IdentityDbContext<User>
     {
         public OrganizasDbContext(DbContextOptions<OrganizasDbContext> options) : base(options) { }
 
