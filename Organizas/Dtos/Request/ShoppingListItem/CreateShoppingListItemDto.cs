@@ -6,7 +6,6 @@ namespace Organizas.Dtos.Request.ShoppingListItem
         string Name,
         decimal Quantity,
         decimal? EstimatedUnitPrice,
-        ShoppingListItemUnitEnum? Unit,
-        int ShoppingListId
+        ShoppingListItemUnitEnum? Unit
     );
 }

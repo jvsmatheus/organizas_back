@@ -63,13 +63,12 @@ namespace Organizas_Tests
             context.ChangeTracker.Clear();
 
             // Act
-            var items = await shoppingListService.GetAllItemsByShoppingListId(listChurrasco.Id, CancellationToken.None);
+            var items = await shoppingListService.GetAsync(listChurrasco.Id, CancellationToken.None);
 
             // Assert
-            var returnedItem = Assert.Single(items);
+            var returnedItem = Assert.Single(items.Items);
 
             Assert.Equal(itemChurrasco.Id, returnedItem.Id);
-            Assert.Equal(listChurrasco.Id, returnedItem.ShoppingListId);
         }
 
         [Fact]
@@ -101,10 +100,10 @@ namespace Organizas_Tests
             context.ChangeTracker.Clear();
 
             // Act
-            var items = await shoppingListService.GetAllItemsByShoppingListId(listMercado.Id, CancellationToken.None);
+            var items = await shoppingListService.GetAsync(listMercado.Id, CancellationToken.None);
 
             // Assert
-            Assert.Empty(items);
+            Assert.Empty(items.Items);
         }
 
         [Fact]
@@ -124,7 +123,7 @@ namespace Organizas_Tests
             );
 
             // Act + Assert
-            var ex = await Assert.ThrowsAsync<ItemNotFoundException>(() => shoppingListService.GetAllItemsByShoppingListId(1, CancellationToken.None));
+            var ex = await Assert.ThrowsAsync<ItemNotFoundException>(() => shoppingListService.GetAsync(1, CancellationToken.None));
         }
 
         private static async Task<OrganizasDbContext> InstanceDbContext(SqliteConnection connection)

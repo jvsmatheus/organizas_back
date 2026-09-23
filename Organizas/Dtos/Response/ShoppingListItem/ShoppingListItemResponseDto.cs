@@ -1,8 +1,9 @@
 ﻿using Organizas.Enum;
 
-namespace Organizas.Dtos.Request.ShoppingListItem
+namespace Organizas.Dtos.Response.ShoppingListItem
 {
-    public record UpdateShoppingListItemDto(
+    public sealed record ShoppingListItemResponseDto(
+        int Id,
         string Name,
         decimal Quantity,
         decimal? EstimatedUnitPrice,

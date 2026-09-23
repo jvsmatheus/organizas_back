@@ -23,10 +23,6 @@ namespace Organizas.Validations
                 .IsInEnum()
                 .When(x => x.Unit.HasValue)
                 .WithMessage("A unidade do item informada é inválida");
-
-            RuleFor(x => x.ShoppingListId)
-                .GreaterThan(0)
-                .WithMessage("Id da lista de compras inválido");
         }
     }
 
@@ -51,10 +47,6 @@ namespace Organizas.Validations
                 .IsInEnum()
                 .When(x => x.Unit.HasValue)
                 .WithMessage("A unidade do item informada é inválida");
-
-            RuleFor(x => x.ShoppingListId)
-                .GreaterThan(0)
-                .WithMessage("Id da lista de compras inválido");
         }
     }
 }

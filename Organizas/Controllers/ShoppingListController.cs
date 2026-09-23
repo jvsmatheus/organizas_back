@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Organizas.Dtos;
 using Organizas.Dtos.Request.ShoppingList;
-using Organizas.Dtos.Request.ShoppingListItem;
-using Organizas.Entities;
+using Organizas.Dtos.Response.ShoppingList;
 using Organizas.Services;
 
 namespace Organizas.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public sealed class ShoppingListController : ControllerBase
@@ -21,61 +22,53 @@ namespace Organizas.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAllAsync(CancellationToken cancellationToken)
         {
-            var items = await _shoppingListService.GetAll(cancellationToken);
+            var items = await _shoppingListService.GetAllAsync(cancellationToken);
 
-            return Ok(ApiResponseDto<List<ShoppingList>>.Ok(items, "Listagem de lista de compras feita com sucesso"));
+            return Ok(ApiResponseDto<List<ShoppingListResponseDto>>.Ok(items, "Listagem de lista de compras feita com sucesso"));
         }
 
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> Get(int id, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAsync(int id, CancellationToken cancellationToken)
         {
-            var item = await _shoppingListService.Get(id, cancellationToken);
+            var item = await _shoppingListService.GetAsync(id, cancellationToken);
 
-            return Ok(ApiResponseDto<ShoppingList>.Ok(item, "Lista de compras encontrada com sucesso"));
-        }
-
-        [HttpGet("{shoppingListId:int}/items")]
-        public async Task<IActionResult> GetAllItemsByShoppingListId(int shoppingListId, CancellationToken cancellationToken)
-        {
-            var items = await _shoppingListService.GetAllItemsByShoppingListId(shoppingListId, cancellationToken);
-
-            return Ok(ApiResponseDto<List<ShoppingListItem>>.Ok(items, "Itens da lista de compras encontrados com sucesso"));
+            return Ok(ApiResponseDto<ShoppingListDetailResponseDto>.Ok(item, "Lista de compras encontrada com sucesso"));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateShoppingListDto request, CancellationToken cancellationToken)
+        public async Task<IActionResult> CreateAsync([FromBody] CreateShoppingListDto request, CancellationToken cancellationToken)
         {
-            var item = await _shoppingListService.Create(request, cancellationToken);
+            var item = await _shoppingListService.CreateAsync(request, cancellationToken);
 
-            return StatusCode(201, ApiResponseDto<ShoppingList>.Ok(item, "Lista de compras criada com sucesso"));
+            return StatusCode(StatusCodes.Status201Created, ApiResponseDto<ShoppingListResponseDto>.Ok(item, "Lista de compras criada com sucesso"));
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateShoppingListDto request, CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdateAsync(int id, [FromBody] UpdateShoppingListDto request, CancellationToken cancellationToken)
         {
-            var item = await _shoppingListService.Update(id, request, cancellationToken);
+            var item = await _shoppingListService.UpdateAsync(id, request, cancellationToken);
 
-            return Ok(ApiResponseDto<ShoppingList>.Ok(item, "Lista de compras atualizada com sucesso"));
+            return Ok(ApiResponseDto<ShoppingListResponseDto>.Ok(item, "Lista de compras atualizada com sucesso"));
 
         }
 
         [HttpPatch("{id:int}/purchase-date")]
-        public async Task<IActionResult> UpdatePurchaseDate(int id, [FromBody] UpdateShoppingListPurchaseDateDto request, CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdatePurchaseDateAsync(int id, [FromBody] UpdateShoppingListPurchaseDateDto request, CancellationToken cancellationToken)
         {
-            var item = await _shoppingListService.UpdatePurchaseDate(id, request, cancellationToken);
+            var item = await _shoppingListService.UpdatePurchaseDateAsync(id, request, cancellationToken);
 
-            return Ok(ApiResponseDto<ShoppingList>.Ok(item, "Data de compra atualizada com sucesso"));
+            return Ok(ApiResponseDto<ShoppingListResponseDto>.Ok(item, "Data de compra atualizada com sucesso"));
 
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteAsync(int id, CancellationToken cancellationToken)
         {
-            await _shoppingListService.Delete(id, cancellationToken);
+            await _shoppingListService.DeleteAsync(id, cancellationToken);
 
-            return StatusCode(204, ApiResponseDto<ShoppingList>.Ok(null, "Lista de compras removida com sucesso"));
+            return Ok(ApiResponseDto<object>.Ok(null, "Lista de compras removida com sucesso"));
 
         }
     }
