@@ -28,6 +28,12 @@ namespace Organizas.Infra.Db
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<ShoppingList>()
+                .HasOne(e => e.UserProfile)
+                .WithMany()
+                .HasForeignKey(e => e.UserProfileId)
+                .IsRequired();
+
             modelBuilder.Entity<UserProfile>(entity =>
             {
                 entity.HasKey(p => p.UserId);
@@ -39,6 +45,7 @@ namespace Organizas.Infra.Db
                 entity.HasOne(p => p.User)
                     .WithOne(u => u.Profile)
                     .HasForeignKey<UserProfile>(p => p.UserId)
+                    .IsRequired()
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }
