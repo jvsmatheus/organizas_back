@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.Sqlite;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Organizas.Entities;
 using Organizas.Enum;
@@ -47,12 +47,14 @@ namespace Organizas_Tests
             var listChurrasco = new ShoppingList
             {
                 Name = "Churrasco",
+                UserProfileId = "user-a",
                 Items = [itemChurrasco]
             };
 
             var listMercado = new ShoppingList
             {
                 Name = "Mercado",
+                UserProfileId = "user-a",
                 Items = [itemMercado]
             };
 
@@ -63,13 +65,12 @@ namespace Organizas_Tests
             context.ChangeTracker.Clear();
 
             // Act
-            var items = await shoppingListService.GetAllItemsByShoppingListId(listChurrasco.Id, CancellationToken.None);
+            var items = await shoppingListService.GetAsync("user-a", listChurrasco.Id, CancellationToken.None);
 
             // Assert
-            var returnedItem = Assert.Single(items);
+            var returnedItem = Assert.Single(items.Items);
 
             Assert.Equal(itemChurrasco.Id, returnedItem.Id);
-            Assert.Equal(listChurrasco.Id, returnedItem.ShoppingListId);
         }
 
         [Fact]
@@ -91,6 +92,7 @@ namespace Organizas_Tests
             var listMercado = new ShoppingList
             {
                 Name = "Mercado",
+                UserProfileId = "user-a",
                 Items = []
             };
 
@@ -101,10 +103,10 @@ namespace Organizas_Tests
             context.ChangeTracker.Clear();
 
             // Act
-            var items = await shoppingListService.GetAllItemsByShoppingListId(listMercado.Id, CancellationToken.None);
+            var items = await shoppingListService.GetAsync("user-a", listMercado.Id, CancellationToken.None);
 
             // Assert
-            Assert.Empty(items);
+            Assert.Empty(items.Items);
         }
 
         [Fact]
@@ -124,7 +126,7 @@ namespace Organizas_Tests
             );
 
             // Act + Assert
-            var ex = await Assert.ThrowsAsync<ItemNotFoundException>(() => shoppingListService.GetAllItemsByShoppingListId(1, CancellationToken.None));
+            var ex = await Assert.ThrowsAsync<ItemNotFoundException>(() => shoppingListService.GetAsync("user-a", 1, CancellationToken.None));
         }
 
         private static async Task<OrganizasDbContext> InstanceDbContext(SqliteConnection connection)
@@ -138,6 +140,13 @@ namespace Organizas_Tests
             try
             {
                 await context.Database.EnsureCreatedAsync();
+                context.UserProfiles.Add(new UserProfile
+                {
+                    UserId = "user-a",
+                    Name = "User A",
+                    User = new User { Id = "user-a", UserName = "user-a" }
+                });
+                await context.SaveChangesAsync();
                 return context;
             }
             catch

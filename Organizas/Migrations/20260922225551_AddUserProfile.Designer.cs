@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Organizas.Infra.Db;
@@ -11,9 +12,11 @@ using Organizas.Infra.Db;
 namespace Organizas.Migrations
 {
     [DbContext(typeof(OrganizasDbContext))]
-    partial class OrganizasDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260922225551_AddUserProfile")]
+    partial class AddUserProfile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -169,13 +172,7 @@ namespace Organizas.Migrations
                     b.Property<DateOnly?>("PurchaseDate")
                         .HasColumnType("date");
 
-                    b.Property<string>("UserProfileId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserProfileId");
 
                     b.ToTable("ShoppingLists", (string)null);
                 });
@@ -346,23 +343,12 @@ namespace Organizas.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Organizas.Entities.ShoppingList", b =>
-                {
-                    b.HasOne("Organizas.Entities.UserProfile", "UserProfile")
-                        .WithMany()
-                        .HasForeignKey("UserProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("UserProfile");
-                });
-
             modelBuilder.Entity("Organizas.Entities.ShoppingListItem", b =>
                 {
                     b.HasOne("Organizas.Entities.ShoppingList", null)
                         .WithMany("Items")
                         .HasForeignKey("ShoppingListId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 

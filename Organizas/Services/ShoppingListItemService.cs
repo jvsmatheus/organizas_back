@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Organizas.Dtos.Request.ShoppingListItem;
+using Organizas.Dtos.Response.ShoppingListItem;
 using Organizas.Entities;
 using Organizas.Exceptions;
 using Organizas.Infra.Db;
@@ -23,67 +24,85 @@ namespace Organizas.Services
             _updateValidator = updateValidator;
         }
 
-        public async Task<List<ShoppingListItem>> GetAll(CancellationToken cancellationToken)
-        {
-            return await _context.ShoppingListItems.AsNoTracking().OrderBy(x => x.Id).ToListAsync(cancellationToken);
-        }
-
-        public async Task<ShoppingListItem> Get(int id, CancellationToken cancellationToken)
-        {
-            return await _context.ShoppingListItems.AsNoTracking().SingleOrDefaultAsync(item => item.Id == id, cancellationToken) ?? throw new ItemNotFoundException();
-        }
-
-        public async Task<ShoppingListItem> Create(CreateShoppingListItemDto request, CancellationToken cancellationToken)
+        public async Task<ShoppingListItemResponseDto> CreateAsync(string userId, int shoppingListId, CreateShoppingListItemDto request, CancellationToken cancellationToken)
         {
             await _createValidator.ValidateAndThrowAsync(
                 request,
                 cancellationToken
             );
 
-            var listExists = await _context.ShoppingLists.AnyAsync(x => x.Id == request.ShoppingListId, cancellationToken);
+            var listExists = await _context.ShoppingLists
+                .AnyAsync(list => list.Id == shoppingListId && list.UserProfileId.Equals(userId), cancellationToken);
 
             if (!listExists)
-                 throw new ItemNotFoundException("Lista de compras não encontrada");
+                throw new ItemNotFoundException("Lista de compras não encontrada");
 
             var item = new ShoppingListItem()
             {
                 Name = request.Name.Trim(),
                 Quantity = request.Quantity,
+                EstimatedUnitPrice = request.EstimatedUnitPrice,
                 Unit = request.Unit,
                 IsChecked = false,
-                ShoppingListId = request.ShoppingListId
+                ShoppingListId = shoppingListId
             };
 
             _context.ShoppingListItems.Add(item);
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return item;
+            return new ShoppingListItemResponseDto(
+                item.Id,
+                item.Name,
+                item.Quantity,
+                item.EstimatedUnitPrice,
+                item.Unit,
+                item.IsChecked
+            );
         }
 
-        public async Task<ShoppingListItem> Update(int id, UpdateShoppingListItemDto request, CancellationToken cancellationToken)
+        public async Task<ShoppingListItemResponseDto> UpdateAsync(string userId, int shoppingListId, int id, UpdateShoppingListItemDto request, CancellationToken cancellationToken)
         {
             await _updateValidator.ValidateAndThrowAsync(
                 request,
                 cancellationToken
             );
 
-            var item = await _context.ShoppingListItems.SingleOrDefaultAsync(item => item.Id == id, cancellationToken) ?? throw new ItemNotFoundException();
+            var listExist = await _context.ShoppingLists.AnyAsync(list => list.Id == shoppingListId && list.UserProfileId.Equals(userId), cancellationToken);
+
+            if (!listExist)
+                throw new ItemNotFoundException("Lista de compras não encontrada");
+
+            var item = await _context.ShoppingListItems
+                .SingleOrDefaultAsync(item => item.Id == id && item.ShoppingListId == shoppingListId, cancellationToken) ?? throw new ItemNotFoundException("Item não encontrado nesta lista");
 
             item.Name = request.Name.Trim();
             item.Quantity = request.Quantity;
+            item.EstimatedUnitPrice = request.EstimatedUnitPrice;
             item.Unit = request.Unit;
             item.IsChecked = request.IsChecked;
-            item.ShoppingListId = request.ShoppingListId;
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return item;
+            return new ShoppingListItemResponseDto(
+                item.Id,
+                item.Name,
+                item.Quantity,
+                item.EstimatedUnitPrice,
+                item.Unit,
+                item.IsChecked
+            );
         }
 
-        public async Task Delete(int id, CancellationToken cancellationToken)
+        public async Task DeleteAsync(string userId, int shoppingListId, int id, CancellationToken cancellationToken)
         {
-            var item = await _context.ShoppingListItems.SingleOrDefaultAsync(item => item.Id == id, cancellationToken) ?? throw new ItemNotFoundException();
+            var listExist = await _context.ShoppingLists.AnyAsync(list => list.Id == shoppingListId && list.UserProfileId.Equals(userId), cancellationToken);
+
+            if (!listExist)
+                throw new ItemNotFoundException("Lista de compras não encontrada");
+
+            var item = await _context.ShoppingListItems
+                .SingleOrDefaultAsync(item => item.Id == id && item.ShoppingListId == shoppingListId, cancellationToken) ?? throw new ItemNotFoundException("Item não encontrado nesta lista.");
 
             _context.ShoppingListItems.Remove(item);
 

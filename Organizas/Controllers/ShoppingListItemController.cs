@@ -1,65 +1,69 @@
-using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Organizas.Dtos;
 using Organizas.Dtos.Request.ShoppingListItem;
+using Organizas.Dtos.Response.ShoppingListItem;
 using Organizas.Entities;
 using Organizas.Infra.Db;
 using Organizas.Services;
 
 namespace Organizas.Controllers
 {
+    [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("ShoppingList/{shoppingListId:int}/items")]
     public sealed class ShoppingListItemController : ControllerBase
     {
         private readonly ShoppingListItemService _shoppingListItemService;
+        private readonly UserManager<User> _userManager;
 
         public ShoppingListItemController(
-            ShoppingListItemService shoppingListItemService
+            ShoppingListItemService shoppingListItemService,
+            UserManager<User> userManager
         ) {
             _shoppingListItemService = shoppingListItemService;
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
-        {
-            var items = await _shoppingListItemService.GetAll(cancellationToken);
-
-            return Ok(ApiResponseDto<List<ShoppingListItem>>.Ok(items, "Listagem de itens feita com sucesso"));
-        }
-
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> Get(int id, CancellationToken cancellationToken)
-        {
-            var item = await _shoppingListItemService.Get(id, cancellationToken);
-
-            return Ok(ApiResponseDto<ShoppingListItem>.Ok(item, "Item encontrado com sucesso"));
+            _userManager = userManager;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateShoppingListItemDto request, CancellationToken cancellationToken)
+        public async Task<IActionResult> CreateAsync([FromRoute] int shoppingListId, [FromBody] CreateShoppingListItemDto request, CancellationToken cancellationToken)
         {
-            var item = await _shoppingListItemService.Create(request, cancellationToken);
+            var userId = _userManager.GetUserId(User);
 
-            return StatusCode(201, ApiResponseDto<ShoppingListItem>.Ok(item, "Item criado com sucesso"));
+            if (string.IsNullOrWhiteSpace(userId))
+                return Unauthorized();
+
+            var item = await _shoppingListItemService.CreateAsync(userId, shoppingListId, request, cancellationToken);
+
+            return StatusCode(StatusCodes.Status201Created, ApiResponseDto<ShoppingListItemResponseDto>.Ok(item, "Item criado com sucesso"));
         }
 
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateShoppingListItemDto request, CancellationToken cancellationToken)
+        [HttpPut("{itemId:int}")]
+        public async Task<IActionResult> UpdateAsync([FromRoute] int shoppingListId, [FromRoute] int itemId, [FromBody] UpdateShoppingListItemDto request, CancellationToken cancellationToken)
         {
-            var item = await _shoppingListItemService.Update(id, request, cancellationToken);
+            var userId = _userManager.GetUserId(User);
 
-            return Ok(ApiResponseDto<ShoppingListItem>.Ok(item, "Item atualizado com sucesso"));
+            if (string.IsNullOrWhiteSpace(userId))
+                return Unauthorized();
+
+            var item = await _shoppingListItemService.UpdateAsync(userId, shoppingListId, itemId, request, cancellationToken);
+
+            return Ok(ApiResponseDto<ShoppingListItemResponseDto>.Ok(item, "Item atualizado com sucesso"));
 
         }
 
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+        [HttpDelete("{itemId:int}")]
+        public async Task<IActionResult> DeleteAsync([FromRoute] int shoppingListId, [FromRoute] int itemId, CancellationToken cancellationToken)
         {
-            await _shoppingListItemService.Delete(id, cancellationToken);
+            var userId = _userManager.GetUserId(User);
 
-            return StatusCode(204, ApiResponseDto<ShoppingListItem>.Ok(null, "Item removido com sucesso"));
+            if (string.IsNullOrWhiteSpace(userId))
+                return Unauthorized();
+
+            await _shoppingListItemService.DeleteAsync(userId, shoppingListId, itemId, cancellationToken);
+
+            return Ok(ApiResponseDto<object>.Ok(null, "Item removido com sucesso"));
 
         }
     }
