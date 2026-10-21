@@ -30,7 +30,7 @@ namespace Organizas.Services
         {
             return await _context.ShoppingLists
                 .AsNoTracking()
-                .Where(x => x.UserProfileId.Equals(userId))
+                .Where(x => x.UserId.Equals(userId))
                 .OrderBy(x => x.Id)
                 .Select(shoppingList => new ShoppingListResponseDto(
                     shoppingList.Id,
@@ -44,7 +44,7 @@ namespace Organizas.Services
         {
             var shoppingList = await _context.ShoppingLists
                 .AsNoTracking()
-                .Where(list => list.Id == id && list.UserProfileId.Equals(userId))
+                .Where(list => list.Id == id && list.UserId.Equals(userId))
                 .Select(list => new ShoppingListDetailResponseDto(
                     list.Id,
                     list.Name,
@@ -73,7 +73,7 @@ namespace Organizas.Services
             {
                 Name = request.Name.Trim(),
                 PurchaseDate = request.PurchaseDate,
-                UserProfileId = userId
+                UserId = userId
             };
 
             await _context.ShoppingLists.AddAsync(shoppingList, cancellationToken);
@@ -96,7 +96,7 @@ namespace Organizas.Services
 
             var shoppingList = await _context.ShoppingLists
                 .SingleOrDefaultAsync(
-                    item => item.Id == id && item.UserProfileId.Equals(userId), cancellationToken
+                    item => item.Id == id && item.UserId.Equals(userId), cancellationToken
                 ) ?? throw new ItemNotFoundException("Lista de compras não encontrada");
 
             shoppingList.Name = request.Name.Trim();
@@ -117,7 +117,7 @@ namespace Organizas.Services
         {
             var item = await _context.ShoppingLists
                 .SingleOrDefaultAsync(
-                    item => item.Id == id && item.UserProfileId.Equals(userId), cancellationToken
+                    item => item.Id == id && item.UserId.Equals(userId), cancellationToken
                 ) ?? throw new ItemNotFoundException("Lista de compras não encontrada");
 
             _context.ShoppingLists.Remove(item);

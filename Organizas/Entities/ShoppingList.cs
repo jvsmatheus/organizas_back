@@ -6,8 +6,8 @@
         public string Name { get; set; } = string.Empty;
         public DateOnly? PurchaseDate { get; set; }
         public List<ShoppingListItem> Items { get; set; } = [];
-        public string UserProfileId { get; set; }
+        public string UserId { get; set; }
 
-        public UserProfile UserProfile { get; set; }
+        public User User { get; set; }
     }
 }

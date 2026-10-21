@@ -32,7 +32,7 @@ namespace Organizas.Services
             );
 
             var listExists = await _context.ShoppingLists
-                .AnyAsync(list => list.Id == shoppingListId && list.UserProfileId.Equals(userId), cancellationToken);
+                .AnyAsync(list => list.Id == shoppingListId && list.UserId.Equals(userId), cancellationToken);
 
             if (!listExists)
                 throw new ItemNotFoundException("Lista de compras não encontrada");
@@ -68,7 +68,7 @@ namespace Organizas.Services
                 cancellationToken
             );
 
-            var listExist = await _context.ShoppingLists.AnyAsync(list => list.Id == shoppingListId && list.UserProfileId.Equals(userId), cancellationToken);
+            var listExist = await _context.ShoppingLists.AnyAsync(list => list.Id == shoppingListId && list.UserId.Equals(userId), cancellationToken);
 
             if (!listExist)
                 throw new ItemNotFoundException("Lista de compras não encontrada");
@@ -96,7 +96,7 @@ namespace Organizas.Services
 
         public async Task DeleteAsync(string userId, int shoppingListId, int id, CancellationToken cancellationToken)
         {
-            var listExist = await _context.ShoppingLists.AnyAsync(list => list.Id == shoppingListId && list.UserProfileId.Equals(userId), cancellationToken);
+            var listExist = await _context.ShoppingLists.AnyAsync(list => list.Id == shoppingListId && list.UserId.Equals(userId), cancellationToken);
 
             if (!listExist)
                 throw new ItemNotFoundException("Lista de compras não encontrada");

@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Organizas.Dtos.Request.ShoppingList;
 using Organizas.Dtos.Request.ShoppingListItem;
@@ -25,14 +26,14 @@ builder.Services.AddScoped<IValidator<CreateShoppingListDto>, CreateShoppingList
 builder.Services.AddScoped<IValidator<UpdateShoppingListDto>, UpdateShoppingListValidator>();
 
 // UserProfile
-builder.Services.AddScoped<IValidator<UpdateUserProfileDto>, UpdateUserProfileValidator>();
+//builder.Services.AddScoped<IValidator<UpdateUserProfileDto>, UpdateUserProfileValidator>();
 #endregion
 
 #region Depency Injection
 // Application dependency injection
 builder.Services.AddScoped<ShoppingListItemService>();
 builder.Services.AddScoped<ShoppingListService>();
-builder.Services.AddScoped<UserProfileService>();
+//builder.Services.AddScoped<UserProfileService>();
 #endregion
 
 // Exception handler
@@ -45,19 +46,31 @@ builder.Services.AddDbContext<OrganizasDbContext>(
 );
 
 // Identity
-builder.Services
-    .AddIdentityApiEndpoints<User>(options =>
-    {
-        options.User.RequireUniqueEmail = true;
-        options.Password.RequiredLength = 10;
+builder.Services.AddIdentityCore<User>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+    options.Password.RequiredLength = 10;
 
-        options.Lockout.AllowedForNewUsers = true;
-        options.Lockout.MaxFailedAccessAttempts = 5;
-        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+    options.Lockout.AllowedForNewUsers = true;
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
 
-        options.SignIn.RequireConfirmedEmail = true;
-    })
-    .AddEntityFrameworkStores<OrganizasDbContext>();
+    options.SignIn.RequireConfirmedEmail = true;
+}).AddEntityFrameworkStores<OrganizasDbContext>();
+
+//builder.Services
+//    .AddIdentityApiEndpoints<User>(options =>
+//    {
+//        options.User.RequireUniqueEmail = true;
+//        options.Password.RequiredLength = 10;
+
+//        options.Lockout.AllowedForNewUsers = true;
+//        options.Lockout.MaxFailedAccessAttempts = 5;
+//        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+
+//        options.SignIn.RequireConfirmedEmail = true;
+//    })
+//    .AddEntityFrameworkStores<OrganizasDbContext>();
 
 builder.Services.AddAuthorization();
 
