@@ -1,18 +1,30 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Organizas.Dtos;
 using Organizas.Dtos.Request.User;
+using Organizas.Services;
 
 namespace Organizas.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class AuthController : ControllerBase
     {
-        //private readonly 
-        public async Task<IActionResult> Register(RegisterUserRequestDto request, CancellationToken cancellationToken)
-        {
+        private readonly AuthService _authService;
 
-            return Ok();
+        public AuthController(
+            AuthService authService
+        )
+        {
+            _authService = authService;
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterUserRequestDto request, CancellationToken cancellationToken)
+        {
+            await _authService.RegisterAsync(request, cancellationToken);
+
+            return Ok(ApiResponseDto<object>.Ok(null, "Conta registrada com sucesso."));
         }
     }
 }

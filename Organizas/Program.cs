@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Organizas.Dtos.Request.ShoppingList;
 using Organizas.Dtos.Request.ShoppingListItem;
+using Organizas.Dtos.Request.User;
 using Organizas.Dtos.Request.UserProfile;
 using Organizas.Entities;
 using Organizas.Infra.Db;
@@ -25,14 +26,16 @@ builder.Services.AddScoped<IValidator<UpdateShoppingListItemDto>, UpdateShopping
 builder.Services.AddScoped<IValidator<CreateShoppingListDto>, CreateShoppingListValidator>();
 builder.Services.AddScoped<IValidator<UpdateShoppingListDto>, UpdateShoppingListValidator>();
 
-// UserProfile
-//builder.Services.AddScoped<IValidator<UpdateUserProfileDto>, UpdateUserProfileValidator>();
+// Auth
+builder.Services.AddScoped<IValidator<RegisterUserRequestDto>, RegisterUserValidator>();
 #endregion
 
 #region Depency Injection
 // Application dependency injection
 builder.Services.AddScoped<ShoppingListItemService>();
 builder.Services.AddScoped<ShoppingListService>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<IdentityEmailSender>();
 //builder.Services.AddScoped<UserProfileService>();
 #endregion
 
@@ -46,6 +49,7 @@ builder.Services.AddDbContext<OrganizasDbContext>(
 );
 
 // Identity
+builder.Services.AddDataProtection();
 builder.Services.AddIdentityCore<User>(options =>
 {
     options.User.RequireUniqueEmail = true;
@@ -56,7 +60,9 @@ builder.Services.AddIdentityCore<User>(options =>
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
 
     options.SignIn.RequireConfirmedEmail = true;
-}).AddEntityFrameworkStores<OrganizasDbContext>();
+})
+.AddEntityFrameworkStores<OrganizasDbContext>()
+.AddDefaultTokenProviders();
 
 //builder.Services
 //    .AddIdentityApiEndpoints<User>(options =>
@@ -121,8 +127,5 @@ app.UseSwaggerUI();
 app.MapSwagger();
 
 app.MapControllers();
-
-app.MapGroup("/Auth")
-    .MapIdentityApi<User>();
 
 app.Run();

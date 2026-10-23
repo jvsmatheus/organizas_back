@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Organizas.Dtos.Request.User;
 using Organizas.Entities;
+using Organizas.Infra.Email;
 
 namespace Organizas.Services
 {
@@ -9,13 +10,16 @@ namespace Organizas.Services
     {
         private readonly IValidator<RegisterUserRequestDto> _registerValidator;
         private readonly UserManager<User> _userManager;
+        private readonly IdentityEmailSender _emailSender;
 
         public AuthService(
             IValidator<RegisterUserRequestDto> registerValidator,
-            UserManager<User> userManager
+            UserManager<User> userManager,
+            IdentityEmailSender emailSender
         ) {
             _registerValidator = registerValidator;
             _userManager = userManager;
+            _emailSender = emailSender;
         }
 
         public async Task RegisterAsync(RegisterUserRequestDto request, CancellationToken cancellationToken)
@@ -34,6 +38,13 @@ namespace Organizas.Services
             };
 
             IdentityResult result = await _userManager.CreateAsync(user, request.Password);
+
+            if (!result.Succeeded)
+                throw new Exception();
+
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+            await _emailSender.SendConfirmationLinkAsync(user, user.Email, token);
         }
     }
 }
